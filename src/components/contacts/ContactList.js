@@ -9,6 +9,7 @@ export function ContactList () {
   // const [readAvatar, setReadAvatar] = useState(null)
   // const [storeAvatar, setStoreAvatar] = useState(null)
   const [isAdd, setIsAdd] = useState(false)
+  const [label, setLabel] = useState(null)
 
   useEffect(() => {
     retrieveContacts()
@@ -34,6 +35,7 @@ export function ContactList () {
   const addContact = () => {
     setContact([])
     setIsAdd(true)
+    setLabel('Save')
   }
 
   // const onChangePicture = e => {
@@ -76,9 +78,28 @@ export function ContactList () {
 
   const detailContact = id => {
     setIsAdd(true)
+    setLabel('Update')
     ContactService.get(id)
       .then(response => {
         setContact(response.data.data)
+      })
+      .catch(error => {
+        console.log(error)
+      })
+  }
+
+  const updateContact = id => {
+    const data = new FormData()
+    data.append('firstName', contact.firstname)
+    data.append('lastName', contact.firstname)
+    data.append('age', contact.age)
+    data.append('photo', 'https://i.pravatar.cc/150')
+    
+    ContactService.update(id, data, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    })
+      .then(response => {
+        console.log(response)
       })
       .catch(error => {
         console.log(error)
@@ -204,7 +225,7 @@ export function ContactList () {
                   name='firstname'
                   placeholder='First Name ...'
                   onChange={handleInputChange}
-                  value={contact && contact.firstName}
+                  value={contact.firstName || ''}
                 />
                 <input
                   className='border border-gray-300 py-1 px-2 w-full rounded-md'
@@ -212,7 +233,7 @@ export function ContactList () {
                   name='lastname'
                   placeholder='Last Name ...'
                   onChange={handleInputChange}
-                  value={contact && contact.lastName}
+                  value={contact.lastName || ''}
                 />
                 <input
                   className='border border-gray-300 py-1 px-2 w-full rounded-md'
@@ -220,14 +241,14 @@ export function ContactList () {
                   name='age'
                   placeholder='Age ...'
                   onChange={handleInputChange}
-                  value={contact && contact.age}
+                  value={contact.age || ''}
                 />
                 <div className='ml-auto'>
                   <button
                     className='bg-green-400 hover:bg-green-500 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-opacity-50 px-3 py-2 rounded-lg font-bold text-white text-sm ml-auto'
-                    onClick={createContact}
+                    onClick={label === 'Save' ? createContact : updateContact}
                   >
-                    Save
+                    {label}
                   </button>
                 </div>
               </div>
